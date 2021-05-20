@@ -1,9 +1,9 @@
 host_list = [
   {
-    hostname = "172.22.248.230"
+    hostname = "172.22.248.231"
   }
 ]
 
 dc = "SJC07"
 
-cluster = "TF-R14-IKS"
+cluster = "TF-K8s-R14"

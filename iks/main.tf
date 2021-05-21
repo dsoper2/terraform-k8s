@@ -4,6 +4,27 @@ provider "intersight" {
   endpoint  = var.endpoint
 }
 
+# Organization and other required Managed Object IDs (moids)
+data "intersight_organization_organization" "organization_moid" {
+  name = var.organization
+}
+
+resource "intersight_kubernetes_cluster_profile" "iks_profile" {
+  /*
+  depends_on = [
+        intersight_kubernetes_node_group_profile.masternodegrp
+  ]
+  action = "Deploy"
+  */
+  name = "tf-sjc07-r14"
+  organization {
+    object_type = "organization.Organization"
+    moid        = data.intersight_organization_organization.organization_moid.id
+  }
+
+}
+
+/*
 module "terraform-intersight-iks" {
   source = "terraform-cisco-modules/iks/intersight//"
   # Infra Config Policy Information
@@ -46,3 +67,4 @@ module "terraform-intersight-iks" {
   organization = var.organization
   tags         = var.tags
 }
+*/

@@ -15,27 +15,27 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(var.cluster_ca_cert)
 }
 
-resource "kubernetes_deployment" "webapp" {
+resource "kubernetes_deployment" "fleetman_webapp_deploy" {
   metadata {
-    name = "webapp"
+    name = "fleetman-webapp-d"
   }
   spec {
     min_ready_seconds = 30
     selector {
       match_labels = {
-        app = "webapp"
+        app = "fleetman-webapp-d"
       }
     }
     replicas = 2
     template {
       metadata {
         labels = {
-          app = "webapp"
+          app = "fleetman-webapp-d"
         }
       }
       spec {
         container {
-          name  = "webapp"
+          name  = "fleetman-webapp-d"
           image = "richardchesterwood/k8s-fleetman-webapp-angular:release0-5"
         }
       }
@@ -43,18 +43,17 @@ resource "kubernetes_deployment" "webapp" {
   }
 }
 
-resource "kubernetes_service" "fleetman-webapp" {
+resource "kubernetes_service" "fleetman_webapp_service" {
   metadata {
-    name = "fleetman-webapp"
+    name = "fleetman-webapp-s"
   }
   spec {
     selector = {
-      app = kubernetes_deployment.webapp.spec.0.template.0.metadata.0.labels.app
+      app = kubernetes_deployment.fleetman_webapp_deploy.spec.0.template.0.metadata.0.labels.app
     }
     port {
-      name      = "http"
-      port      = 80
-      node_port = 30080
+      name = "http"
+      port = 80
     }
     type = "NodePort"
   }

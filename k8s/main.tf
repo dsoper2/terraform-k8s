@@ -35,9 +35,9 @@ resource "kubernetes_deployment" "fleetman_webapp_deploy" {
       }
       spec {
         container {
-          name = "fleetman-webapp-d"
-          # image = "richardchesterwood/k8s-fleetman-webapp-angular:release0-5"
-          image = "richardchesterwood/k8s-fleetman-webapp-angular"
+          name  = "fleetman-webapp-d"
+          image = "richardchesterwood/k8s-fleetman-webapp-angular:release0-5"
+          # image = "richardchesterwood/k8s-fleetman-webapp-angular"
         }
       }
     }

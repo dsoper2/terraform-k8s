@@ -15,14 +15,27 @@ variable "endpoint" {
   default     = "https://www.intersight.com"
 }
 
-variable "server_profile_action" {
+variable "organization" {
   type        = string
-  description = "Desired Action for the server profile (e.g., Deploy, Unassign)"
-  default     = "No-op"
+  description = "The name of the Organization this resource is assigned to"
+  default     = "default"
 }
 
-variable "vnic_name" {
+variable "server_list" {
+  type        = list(map(string))
+  description = "Servers (identified by name, object_type, and target_platform) to assign to configured server profiles"
+  default = [
+    {
+      name            = "SJC07-R14-FI-1-1-6",
+      object_type     = "compute.Blade",
+      target_platform = "FIAttached",
+      vmedia_policy   = "tf-esxi67u3-248-232"
+    }
+  ]
+}
+
+variable "server_profile_action" {
   type        = string
-  description = "VNIC Ethernet Interface name"
-  default     = "eth0"
+  description = "Desired Action for the server profile (e.g., No-op, Deploy, Unassign)"
+  default     = "Deploy"
 }

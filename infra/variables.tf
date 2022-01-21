@@ -37,5 +37,5 @@ variable "server_list" {
 variable "server_profile_action" {
   type        = string
   description = "Desired Action for the server profile (e.g., No-op, Deploy, Unassign)"
-  default     = "No-op"
+  default     = "Deploy"
 }

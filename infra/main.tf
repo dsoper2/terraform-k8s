@@ -4,49 +4,79 @@ provider "intersight" {
   endpoint  = var.endpoint
 }
 
-module "imm_profile" {
-  source = "terraform-cisco-modules/server-profile/intersight"
+# Organization and other required Managed Object IDs (moids)
+data "intersight_organization_organization" "org" {
+  name = var.organization
+}
 
-  # Server names and platform
-  server_list = [
-    /*
-    {
-      name                   = "SJC07-R14-FI-1-1-4",
-      object_type            = "compute.Blade",
-      target_platform        = "FIAttached",
-      vmedia_policy          = "tf-esxi67u3-248-230",
-      boot_iso_file_location = "172.28.224.72/kubam/imm-esx-172-22-248-230.iso"
-    },
-    {
-      name                   = "SJC07-R14-FI-1-1-5",
-      object_type            = "compute.Blade",
-      target_platform        = "FIAttached",
-      vmedia_policy          = "tf-esxi67u3-248-231",
-      boot_iso_file_location = "172.28.224.72/kubam/imm-esx-172-22-248-231.iso"
-    },
-    */
-    {
-      name                   = "SJC07-R14-FI-1-1-6",
-      object_type            = "compute.Blade",
-      target_platform        = "FIAttached",
-      vmedia_policy          = "tf-esxi67u3-248-232",
-      boot_iso_file_location = "172.28.224.72/kubam/imm-esx-172-22-248-232.iso"
-    }
-  ]
+data "intersight_compute_physical_summary" "server" {
+  name  = var.server_list[count.index].name
+  count = length(var.server_list)
+}
 
-  # Server Profile actions
-  server_profile_action = var.server_profile_action
+data "intersight_access_policy" "imc_access" {
+  name = "tf-k8s-SJC07-R14-15-access"
+  organization {
+    object_type = "organization.Organization"
+    moid        = data.intersight_organization_organization.org.id
+  }
+}
 
-  # Comment out any policies you do not want configured
-  imc_access_policy = "tf-k8s-SJC07-R14-15-access"
-  imc_access_vlan   = 248
-  ip_pool           = "SJC07-R14-15-IP"
+data "intersight_boot_precision_policy" "boot_order" {
+  name = "tf-k8s-boot-policy"
+  organization {
+    object_type = "organization.Organization"
+    moid        = data.intersight_organization_organization.org.id
+  }
+}
 
-  boot_order_policy = "tf-k8s-boot-policy"
+data "intersight_vmedia_policy" "vmedia" {
+  name = var.server_list[count.index].vmedia_policy
+  organization {
+    object_type = "organization.Organization"
+    moid        = data.intersight_organization_organization.org.id
+  }
+  count = length(var.server_list)
+}
 
-  lan_connectivity_policy = "tf-k8s-lan-connectivity-policy"
-  mac_pool                = "sjc02-de30-mac"
-  ethernet_network_group  = "tf-k8s-sjc07-248-net-group"
-  cluster_vlan            = 248
-  vnic_name               = var.vnic_name
+data "intersight_vnic_lan_connectivity_policy" "lan_connectivity" {
+  name = "tf-k8s-lan-connectivity-policy"
+  organization {
+    object_type = "organization.Organization"
+    moid        = data.intersight_organization_organization.org.id
+  }
+}
+
+# Server profiles
+resource "intersight_server_profile" "profile" {
+  name        = "SP-${var.server_list[count.index].name}"
+  description = "Updated Profile for server name ${var.server_list[count.index].name}"
+  organization {
+    object_type = "organization.Organization"
+    moid        = data.intersight_organization_organization.org.id
+  }
+  target_platform        = var.server_list[count.index].target_platform
+  server_assignment_mode = "Static"
+  assigned_server {
+    moid        = data.intersight_compute_physical_summary.server[count.index].id
+    object_type = var.server_list[count.index].object_type
+  }
+  policy_bucket {
+    object_type = "access.Policy"
+    moid        = data.intersight_access_policy.imc_access.id
+  }
+  policy_bucket {
+    object_type = "boot.PrecisionPolicy"
+    moid        = data.intersight_boot_precision_policy.boot_order.id
+  }
+  policy_bucket {
+    object_type = "vmedia.Policy"
+    moid        = data.intersight_vmedia_policy.vmedia[count.index].id
+  }
+  policy_bucket {
+    object_type = "vnic.LanConnectivityPolicy"
+    moid        = data.intersight_vnic_lan_connectivity_policy.lan_connectivity.id
+  }
+  action = var.server_profile_action
+  count  = length(var.server_list)
 }

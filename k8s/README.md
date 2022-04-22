@@ -43,7 +43,7 @@ No modules.
 | <a name="input_client_key"></a> [client\_key](#input\_client\_key) | k8s provider client key | `string` | `null` | no |
 | <a name="input_cluster_ca_cert"></a> [cluster\_ca\_cert](#input\_cluster\_ca\_cert) | k8s provider cluster ca certificate | `string` | `null` | no |
 | <a name="input_config_path"></a> [config\_path](#input\_config\_path) | k8s provider config path | `string` | `null` | no |
-| <a name="input_host"></a> [host](#input\_host) | k8s provider host | `string` | `"https://172.22.248.220:6443"` | no |
+| <a name="input_host"></a> [host](#input\_host) | k8s provider host | `string` | `"https://10.30.18.17:6443"` | no |
 
 ## Outputs
 

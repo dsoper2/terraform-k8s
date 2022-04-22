@@ -7,7 +7,7 @@ variable "config_path" {
 variable "host" {
   type        = string
   description = "k8s provider host"
-  default     = "https://172.22.248.220:6443"
+  default     = "https://10.30.18.17:6443"
 }
 
 variable "client_cert" {
